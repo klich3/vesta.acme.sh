@@ -2,6 +2,7 @@
     
     Automation for VestaCP Wild Cert for your domains using `acme.sh` script from [https://get.acme.sh]
 
+
 # How to Install:
 ```
 chmod +x vesta.acme.sh
@@ -37,6 +38,13 @@ First in VistaCp panel ser `*.<domain.com>` save it.
 # Install CA cert Auto
 
 Run `./vesta.acme.sh CAAuto user mydomain.com`
+
+## TODO
+
+- [ ] Add support on panel
+- [ ] Test auto certs
+- [x] Manual installation
+
 
 ### DOCS
 

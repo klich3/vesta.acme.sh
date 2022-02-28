@@ -54,7 +54,7 @@ installCert() {
 
 #parse domain
 CAIssue() {
-  site="$"
+  site="$1"
 
   if [ -z "$site" ] ; then
     echo "Run the script like this\n"
@@ -103,7 +103,7 @@ CAAuto() {
   #check dns for challenge
   CH=$(/usr/local/vesta/bin/v-list-dns-records $user $site | "grep _acme-challenge" | awk '{ print $1 }' )
 
-  if [ CH ] ; then
+  if [ -z "$CH" ] ; then
     echo "First cleaning old challenges"
 
     for rline in $CH; do
@@ -117,7 +117,7 @@ CAAuto() {
 
   ALIASES=$(/usr/local/vesta/bin/v-list-web-domain $user $domain | grep "*")
 
-  if [ ! ALIASES ]; then
+  if [ -z "$ALIASES" ] ; then
     echo "Adding * aliases"
     #* add aliases 
     /usr/local/vesta/bin/v-add-web-domain-alias $user $site *.$site
@@ -125,7 +125,7 @@ CAAuto() {
 
   STEPONE=$(CAIssue $site | grep "txt='" | awk -F= '{ print $2 }' | sed "s/[']//g") 
 
-  if [ ! $STEPONE ] ; then
+  if [ -z "$STEPONE" ] ; then
     echo "Run it again."
     return 1
   fi
@@ -146,13 +146,14 @@ CAAuto() {
   wait 120
 
   FINALSTEP=$(CARenew $user $site | grep "BEGIN CERTIFICATE")
-
-  #TODO: cehck this part for 
-  if [ $FINALSTEP ]; then
-    echo "Installing Cert"
-    installCert $user $site
+  
+  if [ -z "$FINALSTEP" ] ; then
+    echo "Run it again."
     return 1
   fi
+
+  echo "Installing Cert"
+  installCert $user $site
 }
 
 ## AUTO PART ---------------------
@@ -213,6 +214,7 @@ showhelp() {
   echo "addssl : add ssl to a plain site"
   echo "\n-----\n"
 
+  echo "WildCat CA Cert manual method :"
   echo "First step :"
   echo "CAIssue <domain> : get acme challenge is needed to manually add txt record"
   echo "Wait 5 - 10 minutes for apply dns"
@@ -221,14 +223,13 @@ showhelp() {
   echo "CARenew <user> <domain> : get acme ssl cer add to a plain site"
   echo "installCert <user> <domain> : move gen cert to domain folder and apply"
 
-  echo "\n-----\n"
-
-  echo "MANUAL CA"
   echo "sample ./vesta.acme.sh CAIssue <domain.com>"
   echo "sample ./vesta.acme.sh CARenew <user> <domain.com>"
   echo "sample ./vesta.acme.sh installCert <user> <domain.com>"
 
-  echo "ATUO CA"
+  echo "\n-----\n"
+
+  echo "WildCat CA Cert auto method (not completly tested) :"
   echo "sample ./vesta.acme.sh CAAuto <user> <domain.com>"
 }
 
