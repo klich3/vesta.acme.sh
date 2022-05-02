@@ -42,7 +42,7 @@ Run `./vesta.acme.sh CAAuto user mydomain.com`
 ## TODO
 
 - [ ] Add support on panel
-- [ ] Test auto certs
+- [x] Test auto certs
 - [x] Manual installation
 
 
